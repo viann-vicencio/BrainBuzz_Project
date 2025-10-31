@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load base_extras %}
+
+{% block title %}Quiz History{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Quiz from {{ quiz_history.timestamp|date:"F d, Y, P" }}</h2>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Your Score: {{ quiz_history.grade|floatformat:2 }}%</h5>
+        </div>
+    </div>
+
+    {% for question in quiz_history.questions.all %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Question {{ forloop.counter }}: {{ question.question_text }}</h5>
+                <ul class="list-group mt-3">
+                    {% for option in question.options %}
+                        <li class="list-group-item {% if option == question.correct_answer %}list-group-item-success{% elif option == question.user_answer and option != question.correct_answer %}list-group-item-danger{% endif %}">
+                            {{ option }}
+                            {% if option == question.correct_answer %}
+                                <span class="badge bg-success float-end">Correct Answer</span>
+                            {% elif option == question.user_answer and option != question.correct_answer %}
+                                <span class="badge bg-danger float-end">Your Answer</span>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+                <p class="mt-3"><strong>Correct Answer:</strong> {{ question.correct_answer }}</p>
+                <p><strong>Your Answer:</strong> {% if question.user_answer %}{{ question.user_answer }}{% else %}Not answered{% endif %}</p>
+            </div>
+        </div>
+    {% endfor %}
+
+    <a href="{% url 'base:progress' %}" class="btn btn-primary">Back to Progress</a>
+    <a href="{% url 'base:retake_quiz' quiz_history.id %}" class="btn btn-secondary">Retake Quiz</a>
+    <a href="{% url 'base:delete_quiz_history' quiz_history.id %}" class="btn btn-danger">Delete Quiz</a>
+</div>
+{% endblock %}

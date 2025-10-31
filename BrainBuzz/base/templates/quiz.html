@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load base_extras %}
+
+{% block title %}Quiz{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h1 class="card-title">Quiz</h1>
+                </div>
+                <div class="card-body">
+                    {% if quiz_data %}
+                        <form method="post" action="{% url 'base:submit_quiz' %}">
+                            {% csrf_token %}
+                            {% for question_obj in quiz_data %}
+                                <div class="card mb-3">
+                                    <div class="card-body">
+                                        <h5 class="card-title">{{ forloop.counter }}. {{ question_obj.question }}</h5>
+                                        <ul class="list-group">
+                                            {% for option in question_obj.options %}
+                                                <li class="list-group-item answer-box" onclick="selectAnswer(this)">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" name="user_answers_{{ forloop.parentloop.counter0 }}" value="{{ option|slice:":1" }}">
+                                                        <label class="form-check-label">
+                                                            {{ option }}
+                                                        </label>
+                                                    </div>
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                            <button type="submit" class="btn btn-success mt-3">Submit Quiz</button>
+                        </form>
+                    {% else %}
+                        <p>No quiz data available.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .answer-box {
+        cursor: pointer;
+        transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+    }
+    .answer-box.selected {
+        background-color: #e7f1ff;
+        border-color: #007bff;
+    }
+    .answer-box .form-check-input {
+        pointer-events: none; /* The whole box is clickable, so disable clicks on the radio itself */
+    }
+</style>
+
+<script>
+    function selectAnswer(element) {
+        // Find the radio button within the clicked li
+        const radio = element.querySelector('input[type="radio"]');
+        if (radio) {
+            // Unselect all other boxes in the same question group
+            const groupName = radio.name;
+            const allRadiosInGroup = document.querySelectorAll(`input[type="radio"][name="${groupName}"]`);
+            allRadiosInGroup.forEach(r => {
+                r.closest('.answer-box').classList.remove('selected');
+                r.checked = false;
+            });
+
+            // Select the clicked one
+            radio.checked = true;
+            element.classList.add('selected');
+        }
+    }
+</script>
+{% endblock %}

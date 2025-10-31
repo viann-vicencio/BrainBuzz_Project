@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% load base_extras %}
+
+{% block title %}Generate Quiz{% endblock %}
+
+{% block content %}
+<header>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'base:dashboard' %}">BrainBuzz</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'base:dashboard' %}">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'base:notes' %}">Notes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'base:progress' %}">Progress</a>
+                    </li>
+                </ul>
+                <span class="navbar-text me-3">
+                    Welcome, {{ request.user.full_name }}
+                </span>
+                <a href="{% url 'base:user_logout' %}" class="btn btn-outline-danger">Logout</a>
+            </div>
+        </div>
+    </nav>
+</header>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h1 class="card-title">Generate Multiple Choice Quiz</h1>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data" action="{% url 'base:dashboard' %}" id="generateQuizForm">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <button type="submit" class="btn btn-primary">Generate Quiz</button>
+                    </form>
+
+                    <div id="loadingSpinner" style="display:none; text-align:center; margin-top: 20px;">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p>Generating quiz questions, please wait...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    document.getElementById('generateQuizForm').addEventListener('submit', function() {
+        document.getElementById('loadingSpinner').style.display = 'block';
+    });
+</script>
+{% endblock %}

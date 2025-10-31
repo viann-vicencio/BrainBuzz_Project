@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="home-page" style="width: 100%; height: 100%; display: block;">
+    <header>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'base:dashboard' %}">BrainBuzz</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'base:dashboard' %}">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'base:notes' %}">Notes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'base:progress' %}">Progress</a>
+                    </li>
+                </ul>
+                <span class="navbar-text me-3">
+                    <strong>Welcome, {{ full_name }}</strong>
+                </span>
+                <a href="{% url 'base:user_logout' %}" class="btn btn-outline-danger">Logout</a>
+            </div>
+        </div>
+    </nav>
+</header>
+    <div class="dashboard-content container mt-5">
+        <form method="post" enctype="multipart/form-data" action="{% url 'base:dashboard' %}">
+            {% csrf_token %}
+            <div class="row justify-content-center gx-5">
+                <!-- Left Box: File Upload -->
+                <div class="col-md-5 mb-3">
+                    <div class="card p-3">
+                        <h5 class="card-title text-center">Upload a PDF File</h5>
+                        <div id="drop-zone" class="border rounded p-3 text-muted text-center">
+                            <p>Drag and drop your PDF here, or click to select file. <br>(Max 25MB)</p>
+                            {{ quiz_form.file }}
+                        </div>
+                    </div>
+                </div>
+                <!-- Right Box: Manual Notes -->
+                <div class="col-md-5 mb-3">
+                    <div class="card p-3">
+                        <h5 class="card-title text-center">Manual Notes</h5>
+                        {{ quiz_form.content }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="row justify-content-center mt-3">
+                <div class="col-md-10">
+                    <div class="card p-3">
+                        <label for="{{ quiz_form.num_questions.id_for_label }}" class="form-label"><h5>Number of Questions</h5></label>
+                        {{ quiz_form.num_questions }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="row justify-content-center mt-4">
+                <div class="col-md-10 d-flex justify-content-between">
+                    <button type="submit" name="save_note" class="btn btn-secondary" style="width: 48%;">Save Note</button>
+                    <button type="submit" name="generate_quiz" class="btn btn-warning generate-quiz-btn" style="width: 48%;">Generate Quiz</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    #drop-zone {
+        position: relative;
+        min-height: 150px;
+        cursor: pointer;
+        border-style: dashed !important;
+    }
+    #drop-zone.highlight {
+        border-color: #007bff !important;
+    }
+    #drop-zone input[type="file"] {
+        opacity: 0;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+    }
+    /* Style for Manual Notes Textarea */
+    #id_content {
+        height: 150px; /* Match height of drop-zone */
+        resize: none; /* Prevent resizing */
+        overflow-y: auto; /* Enable vertical scrolling */
+    }
+    .generate-quiz-btn {
+        background-color: #ff8c00; /* Orange */
+        border-color: #ff8c00;
+        color: white;
+    }
+</style>
+
+<script>
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.querySelector('#drop-zone input[type="file"]');
+
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('highlight');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('highlight');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('highlight');
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            const fileName = files[0].name;
+            dropZone.querySelector('p').textContent = `File selected: ${fileName}`;
+        }
+    });
+
+    fileInput.addEventListener('change', () => {
+        if (fileInput.files.length > 0) {
+            const fileName = fileInput.files[0].name;
+            dropZone.querySelector('p').textContent = `File selected: ${fileName}`;
+        }
+    });
+</script>
+{% endblock content %}

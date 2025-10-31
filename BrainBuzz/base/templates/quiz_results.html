@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load base_extras %}
+
+{% block title %}Quiz Results{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Quiz Results</h2>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Your Score: {{ grade|floatformat:2 }}%</h5>
+        </div>
+    </div>
+
+    {% if quiz_data %}
+        {% for question_obj in quiz_data %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Question {{ forloop.counter }}: {{ question_obj.question }}</h5>
+                    <ul class="list-group mt-3">
+                        {% with user_answer=user_answers|get_item:forloop.counter0 correct_answer=correct_answers|get_item:forloop.counter0 %}
+                            {% for option in question_obj.options %}
+                                <li class="list-group-item 
+                                    {% if option|slice:':1' == correct_answer %}
+                                        list-group-item-success
+                                    {% elif option|slice:':1' == user_answer and user_answer != correct_answer %}
+                                        list-group-item-danger
+                                    {% endif %}
+                                ">
+                                    {{ option }}
+                                </li>
+                            {% endfor %}
+                        {% endwith %}
+                    </ul>
+                    <p class="mt-3"><strong>Correct Answer:</strong> {{ correct_answers|get_item:forloop.counter0 }}</p>
+                    <p><strong>Your Answer:</strong> {% if user_answers|get_item:forloop.counter0 %}{{ user_answers|get_item:forloop.counter0 }}{% else %}Not answered{% endif %}</p>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No quiz data available.</p>
+    {% endif %}
+
+    <a href="{% url 'base:generate_quiz' %}" class="btn btn-primary">Generate New Quiz</a>
+    <a href="{% url 'base:dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+</div>
+{% endblock %}
